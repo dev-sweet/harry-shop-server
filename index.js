@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const bodyParser = require("body-parser");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const { ObjectId } = require("mongodb");
 require("dotenv").config();
@@ -9,6 +10,7 @@ const port = process.env.PORT || 5000;
 // use middlewears
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
 
 // create mongoClient
 const client = new MongoClient(process.env.MONGO_URI, {
@@ -40,7 +42,9 @@ const run = async () => {
 
     // handle products get request for sing product
     app.get("/products/:id", async (req, res) => {
+      console.log("hit product details api");
       const id = req.params.id;
+      console.log(id);
       const result = await productCollection.findOne({ _id: new ObjectId(id) });
       res.send(result);
     });
@@ -85,6 +89,29 @@ const run = async () => {
     app.post("/users", async (req, res) => {
       const userInfo = req.body;
       const result = await userCollection.insertOne(userInfo);
+      res.send(result);
+    });
+
+    // handle user get request single
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await userCollection.findOne({ email });
+      res.send(result);
+    });
+
+    // handle users patch request
+    app.patch("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const updatedUser = req.body;
+      const result = await userCollection.updateOne(
+        {
+          _id: new ObjectId(id),
+        },
+        {
+          $set: updatedUser,
+        }
+      );
       res.send(result);
     });
   } finally {

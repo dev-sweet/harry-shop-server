@@ -20,6 +20,16 @@ const client = new MongoClient(process.env.MONGO_URI, {
     deprecationErrors: true,
   },
 });
+
+const createToken = (user) => {
+  return jwt.sign(
+    {
+      email: user.email,
+    },
+    "secret",
+    { expiresIn: "7d" }
+  );
+};
 const run = async () => {
   try {
     await client.connect();
@@ -28,6 +38,10 @@ const run = async () => {
     const productCollection = productDB.collection("product_collection");
     const userCollection = userDB.collection("user_collection");
 
+    // handle common route request
+    app.get("/", (req, res) => {
+      res.send("Hello World!");
+    });
     /* ===========================================
     ============ Handle Product Request==============
     ==============================================*/
@@ -88,6 +102,10 @@ const run = async () => {
     // post a user to user collection
     app.post("/users", async (req, res) => {
       const userInfo = req.body;
+      const token = createToken(userInfo);
+      const isUserExist = await userCollection.findOne({
+        email: userInfo?.email,
+      });
       const result = await userCollection.insertOne(userInfo);
       res.send(result);
     });

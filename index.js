@@ -27,7 +27,7 @@ const run = async () => {
     const userCollection = userDB.collection("user_collection");
 
     /* ===========================================
-    ============ Handle User Request==============
+    ============ Handle Product Request==============
     ==============================================*/
 
     // handle product post request
